@@ -15,7 +15,7 @@ public class Sheets {
     public static BaseResponse<?> CopyAndPasteByRange(Client client, CopyAndPasteByRangeRequest request) throws Exception {
         // 读取单个范围
         RawResponse readResp = client.get(
-                String.format("/open-apis/sheets/v2/spreadsheets/%s/values/%s", request.getSpreadsheetToken(), request.getScrRange()),
+                String.format("/open-apis/sheets/v2/spreadsheets/%s/values/%s", request.getSpreadsheetToken(), request.getSrcRange()),
                 null,
                 AccessTokenType.Tenant);
 

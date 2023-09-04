@@ -14,7 +14,7 @@ public class SheetsTest {
     public void TestCopyAndPasteByRange() throws Exception {
         CopyAndPasteByRangeRequest req = new CopyAndPasteByRangeRequest();
         req.setSpreadsheetToken("T90VsUqrYhrnGCtBKS3cLCgQnih");
-        req.setScrRange("53988e!A1:B5");
+        req.setSrcRange("53988e!A1:B5");
         req.setDstRange("53988e!C1:D5");
 
         BaseResponse<?> resp = Sheets.CopyAndPasteByRange(client, req);

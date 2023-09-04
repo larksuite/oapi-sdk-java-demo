@@ -4,7 +4,7 @@ import com.lark.oapi.core.response.BaseResponse;
 
 import java.util.Map;
 
-public class CopyAndPasteRangeResponse extends BaseResponse {
+public class CopyAndPasteRangeResponse extends BaseResponse<Void> {
     private SpreadsheetRespBody readResponse;
     private SpreadsheetRespBody writeResponse;
 

@@ -2,7 +2,7 @@ package com.larksuite.oapi.composite_api.sheets;
 
 public class CopyAndPasteByRangeRequest {
     private String spreadsheetToken;
-    private String scrRange;
+    private String srcRange;
     private String dstRange;
 
     public String getSpreadsheetToken() {
@@ -13,12 +13,12 @@ public class CopyAndPasteByRangeRequest {
         this.spreadsheetToken = spreadsheetToken;
     }
 
-    public String getScrRange() {
-        return scrRange;
+    public String getSrcRange() {
+        return srcRange;
     }
 
-    public void setScrRange(String scrRange) {
-        this.scrRange = scrRange;
+    public void setSrcRange(String srcRange) {
+        this.srcRange = srcRange;
     }
 
     public String getDstRange() {
