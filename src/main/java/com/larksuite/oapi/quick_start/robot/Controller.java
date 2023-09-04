@@ -21,7 +21,6 @@ public class Controller {
     @Autowired
     private ServletAdapter servletAdapter;
 
-
     private final EventDispatcher EVENT_DISPATCHER = EventDispatcher.newBuilder(Config.VERIFICATION_TOKEN, Config.ENCRYPT_KEY)
             .onP2MessageReceiveV1(new ImService.P2MessageReceiveV1Handler() {
                 // 处理消息回调

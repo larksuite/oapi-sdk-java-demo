@@ -5,8 +5,14 @@
 ## 组合函数
 目前提供以下组合函数：
 * 消息
-  * [发送文件消息](src/main/java/com/larksuite/oapi/composite_api/im/SendFile.java)
-  * [发送图片消息](src/main/java/com/larksuite/oapi/composite_api/im/SendImage.java)
+  * [发送文件消息](src/main/java/com/larksuite/oapi/composite_api/im/Im.java)
+  * [发送图片消息](src/main/java/com/larksuite/oapi/composite_api/im/Im.java)
+* 通讯录
+  * [获取部门下所有用户列表](src/main/java/com/larksuite/oapi/composite_api/contact/Contact.java)
+* 多维表格
+  * [创建多维表格同时添加数据表](src/main/java/com/larksuite/oapi/composite_api/base/Base.java)
+* 电子表格
+  * [复制粘贴某个范围的单元格数据](src/main/java/com/larksuite/oapi/composite_api/sheets/Sheets.java)
 
 ## Quick-Start
 目前提供以下场景的运行示例：
