@@ -2,6 +2,7 @@ package com.larksuite.oapi.composite_api.drive;
 
 import com.lark.oapi.Client;
 import com.lark.oapi.service.drive.v1.enums.FileUploadInfoParentTypeEnum;
+import com.lark.oapi.service.drive.v1.enums.MediaUploadInfoParentTypeEnum;
 import com.lark.oapi.service.drive.v1.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,81 @@ import java.util.zip.Adler32;
 public class Drive {
 
     private static final Logger log = LoggerFactory.getLogger(Drive.class);
+
+    /**
+     * 分片上传大文件至云空间文件夹下，使用到三个OpenAPI：
+     * 1. [分片上传文件（预上传）](<a href="https://open.feishu.cn/document/server-docs/docs/drive-v1/media/multipart-upload-media/upload_prepare">...</a>)
+     * 2. [分片上传文件（上传分片）](<a href="https://open.feishu.cn/document/server-docs/docs/drive-v1/media/multipart-upload-media/upload_part">...</a>)
+     * 2. [分片上传文件（完成上传）](<a href="https://open.feishu.cn/document/server-docs/docs/drive-v1/media/multipart-upload-media/upload_finish">...</a>)
+     */
+    public static UploadFinishMediaResp uploadMediaByPart(Client client, String parentNode, File file, MediaUploadInfoParentTypeEnum type) throws Exception {
+        // 预上传, 获取文件分片大小与分片数量
+        UploadPrepareMediaResp prepareResp = client.drive()
+            .media()
+            .uploadPrepare(
+                UploadPrepareMediaReq.newBuilder()
+                    .mediaUploadInfo(
+                        MediaUploadInfo.newBuilder()
+                            .fileName(file.getName())
+                            .size(toInt(file.length()))
+                            .parentNode(parentNode)
+                            .parentType(type)
+                            .build()
+                    )
+                    .build()
+            );
+
+        UploadPrepareMediaRespBody prepareRespData = prepareResp.getData();
+        log.info("[upload-prepare-resp] upload-id={}, block-size:{}, block-num: {}",
+            prepareRespData.getUploadId(),
+            prepareRespData.getBlockSize(),
+            prepareRespData.getBlockNum()
+        );
+
+        // 拆分文件分片, 逐片上传
+        Map<Integer, File> sliceFileMap = sliceFile(file, prepareRespData.getBlockSize(), prepareRespData.getBlockNum());
+        for (int i = 0; i < prepareRespData.getBlockNum(); i++) {
+            File sliceFile = sliceFileMap.get(i);
+            UploadPartMediaResp resp = client.drive()
+                .media()
+                .uploadPart(
+                    UploadPartMediaReq.newBuilder()
+                        .uploadPartMediaReqBody(
+                            UploadPartMediaReqBody.newBuilder()
+                                .uploadId(prepareRespData.getUploadId())
+                                .size(toInt(sliceFile.length()))
+                                .seq(i)
+                                .checksum(calculateAdler32(sliceFile))
+                                .file(sliceFile)
+                                .build()
+                        )
+                        .build()
+                );
+
+            log.info("[upload-part-resp] index={}, success={}, msg={}", i, resp.success(), resp.getMsg());
+        }
+
+        // 清理碎片文件
+        sliceFileMap.values().forEach(Drive::del);
+
+        // 完成上传
+        UploadFinishMediaResp finishResp = client.drive()
+            .media()
+            .uploadFinish(
+                UploadFinishMediaReq.newBuilder()
+                    .uploadFinishMediaReqBody(
+                        UploadFinishMediaReqBody.newBuilder()
+                            .uploadId(prepareRespData.getUploadId())
+                            .blockNum(prepareRespData.getBlockNum())
+                            .build()
+                    )
+                    .build()
+            );
+
+        log.info("[upload-finish-resp] success={}, msg={}, fileToken={}",
+            finishResp.success(), finishResp.getMsg(), finishResp.getData().getFileToken());
+        return finishResp;
+    }
 
     /**
      * 分片上传大文件至云空间文件夹下，使用到三个OpenAPI：
